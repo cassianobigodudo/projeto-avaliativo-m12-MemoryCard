@@ -90,6 +90,67 @@ npm test
 
 Consulte o [INSTALLATION.md](./INSTALLATION.md) para instruções detalhadas de instalação e execução.
 
+## Uso de IA — Kiro (LLM)
+
+Este projeto foi desenvolvido com auxílio do **Kiro**, um ambiente de desenvolvimento com IA integrada. Para garantir consistência, rastreabilidade e confiabilidade nas interações com a LLM, adotamos um padrão de prompt estruturado em todas as tarefas delegadas à IA.
+
+### Por que padronizar os prompts?
+
+Prompts bem estruturados reduzem ambiguidade, evitam que a IA extrapole o escopo e tornam o histórico de decisões auditável por qualquer membro do time.
+
+### Template de Prompt
+
+```
+Instrução: <o que deve ser feito, de forma imperativa e objetiva>
+
+Objetivo: <qual o resultado esperado ao final da tarefa>
+
+Regras/Limitações:
+- <restrição 1>
+- <restrição 2>
+- <restrição N>
+
+Exemplo (se aplicável):
+<demonstração do formato de entrada ou saída esperado>
+```
+
+### Exemplo real utilizado no projeto
+
+```
+Instrução: Implemente a funcionalidade de Cadastro de Usuário no backend,
+incluindo a rota, o controller e a criptografia de senha com bcrypt.
+
+Objetivo: Ter um endpoint POST /api/users/register funcional, com validações
+e retorno sem expor o hash da senha.
+
+Regras/Limitações:
+- Seguir estritamente o padrão MVC definido no tech.md
+- Usar bcrypt para hash da senha (nunca salvar em texto puro)
+- O email deve ser único; retornar 409 em caso de duplicidade
+- A resposta de sucesso deve omitir o passwordHash
+
+Exemplo de retorno esperado:
+{
+  "success": true,
+  "data": {
+    "id": "uuid",
+    "name": "Fulano",
+    "email": "fulano@email.com"
+  }
+}
+```
+
+### Arquivos de contexto (Steering)
+
+A pasta `steering/` contém os arquivos que alimentam o contexto da IA em todas as sessões:
+
+| Arquivo | Conteúdo |
+|---|---|
+| `product.md` | Visão do produto, problema e público-alvo |
+| `tech.md` | Stack tecnológica, schema do banco e diretrizes de código |
+| `spec.md` | Regras funcionais e de negócio da aplicação |
+| `git-conventions.md` | Padrão de commits e criação de branches |
+
 ## Licença
 
 Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](./LICENSE) para mais detalhes.
