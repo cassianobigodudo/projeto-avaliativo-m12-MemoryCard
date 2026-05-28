@@ -23,14 +23,14 @@ model User {
 }
 
 model Game {
-  id        String      @id @default(uuid())
-  userId    String      @map("user_id")
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
   title     String
   platform  String
   condition Condition
-  region    Region      @default(RegionFree)
+  region    Region    @default(RegionFree)
   notes     String?
-  createdAt DateTime    @default(now()) @map("created_at")
+  createdAt DateTime  @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -47,6 +47,6 @@ enum Condition {
 enum Region {
   NTSC
   PAL
-  NTSC_J  @map("NTSC-J")
+  NTSC_J     @map("NTSC-J")
   RegionFree
 }
