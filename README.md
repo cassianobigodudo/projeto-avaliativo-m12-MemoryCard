@@ -60,15 +60,31 @@ projeto-avaliativo-m12-MemoryCard/
 
 ## Endpoints da API
 
-| Método | Rota | Descrição | Auth |
-|---|---|---|---|
-| POST | `/api/auth/register` | Cadastro de usuário | ❌ |
-| POST | `/api/auth/login` | Login | ❌ |
-| GET | `/api/games` | Listar jogos do usuário | ✅ |
-| POST | `/api/games` | Adicionar jogo | ✅ |
-| GET | `/api/games/:id` | Detalhar jogo | ✅ |
-| PUT | `/api/games/:id` | Editar jogo | ✅ |
-| DELETE | `/api/games/:id` | Remover jogo | ✅ |
+| Método | Rota | Descrição | Auth | Status |
+|---|---|---|---|---|
+| POST | `/api/users/register` | Cadastro de usuário | ❌ | ✅ Implementado |
+| POST | `/api/auth/register` | Cadastro de usuário (legado) | ❌ | 🚧 Placeholder |
+| POST | `/api/auth/login` | Login | ❌ | 🚧 Placeholder |
+| GET | `/api/games` | Listar jogos do usuário | ✅ | 🚧 Placeholder |
+| POST | `/api/games` | Adicionar jogo | ✅ | 🚧 Placeholder |
+| GET | `/api/games/:id` | Detalhar jogo | ✅ | 🚧 Placeholder |
+| PUT | `/api/games/:id` | Editar jogo | ✅ | 🚧 Placeholder |
+| DELETE | `/api/games/:id` | Remover jogo | ✅ | 🚧 Placeholder |
+
+## Testes
+
+O projeto utiliza **Jest** com **ts-jest** para testes unitários no backend.
+
+| Módulo | Casos cobertos |
+|---|---|
+| `AuthController.register` | Cadastro com sucesso, campos obrigatórios ausentes (name, email, password), email inválido, senha fraca, email duplicado |
+
+Para rodar os testes:
+
+```bash
+cd backend
+npm test
+```
 
 ## Como Rodar
 
