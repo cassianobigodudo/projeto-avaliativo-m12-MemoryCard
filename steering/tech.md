@@ -6,6 +6,7 @@
 - **Banco de Dados:** PostgreSQL.
 - **ORM / Query Builder:** Prisma ORM.
 - **Autenticação:** JSON Web Tokens (JWT) e bcrypt para hash de senhas.
+- **Kiro:** IDE e LLM auxiliar para o projeto.
 
 ## 2. Arquitetura do Banco de Dados (Esquema Conceitual)
 
