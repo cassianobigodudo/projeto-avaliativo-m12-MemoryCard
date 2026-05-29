@@ -75,7 +75,9 @@ projeto-avaliativo-m12-MemoryCard/
 
 ## Testes
 
-O projeto utiliza **Jest** com **ts-jest** para testes unitários no backend.
+O projeto utiliza **Jest** com **ts-jest** para testes unitários no backend e **Vitest** com **React Testing Library** para testes do frontend.
+
+### Backend
 
 | Módulo | Casos cobertos |
 |---|---|
@@ -85,10 +87,21 @@ O projeto utiliza **Jest** com **ts-jest** para testes unitários no backend.
 | `UserController.update` | Edição com sucesso, tentativa de editar conta alheia (403), nenhum campo enviado (400), email duplicado (409) |
 | `UserController.delete` | Deleção com sucesso, tentativa de deletar conta alheia (403), usuário inexistente (404) |
 
-Para rodar os testes:
-
 ```bash
 cd backend
+npm test
+```
+
+### Frontend
+
+| Módulo | Casos cobertos |
+|---|---|
+| `LoginPage` | Renderização dos inputs, formulário vazio não chama API, login com sucesso redireciona para /dashboard, credenciais inválidas exibem erro |
+| `RegisterPage` | Renderização dos inputs, formulário vazio não chama API, cadastro com sucesso redireciona para /login, email duplicado exibe erro |
+| `ProtectedRoute` | Sem token redireciona para /login, com token renderiza conteúdo protegido |
+
+```bash
+cd frontend
 npm test
 ```
 
