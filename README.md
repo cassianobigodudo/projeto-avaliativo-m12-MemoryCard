@@ -64,6 +64,8 @@ projeto-avaliativo-m12-MemoryCard/
 |---|---|---|---|---|
 | POST | `/api/users/register` | Cadastro de usuário | ❌ | ✅ Implementado |
 | POST | `/api/auth/login` | Login | ❌ | ✅ Implementado |
+| PUT | `/api/users/:id` | Editar conta do usuário | ✅ | ✅ Implementado |
+| DELETE | `/api/users/:id` | Deletar conta do usuário | ✅ | ✅ Implementado |
 | POST | `/api/auth/register` | Cadastro de usuário (legado) | ❌ | 🚧 Placeholder |
 | GET | `/api/games` | Listar jogos do usuário | ✅ | 🚧 Placeholder |
 | POST | `/api/games` | Adicionar jogo | ✅ | 🚧 Placeholder |
@@ -80,6 +82,8 @@ O projeto utiliza **Jest** com **ts-jest** para testes unitários no backend.
 | `AuthController.register` | Cadastro com sucesso, campos obrigatórios ausentes (name, email, password), email inválido, senha fraca, email duplicado |
 | `AuthController.login` | Login com sucesso (gera token), email inexistente, senha incorreta, campos ausentes |
 | `authMiddleware` | Token válido (libera rota e injeta userId), header ausente, sem prefixo Bearer, token inválido/expirado |
+| `UserController.update` | Edição com sucesso, tentativa de editar conta alheia (403), nenhum campo enviado (400), email duplicado (409) |
+| `UserController.delete` | Deleção com sucesso, tentativa de deletar conta alheia (403), usuário inexistente (404) |
 
 Para rodar os testes:
 
