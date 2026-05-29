@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 import { prisma } from '../lib/prisma';
 
 export class AuthController {
@@ -69,7 +70,51 @@ export class AuthController {
     });
   }
 
-  async login(_req: Request, res: Response): Promise<void> {
-    res.status(501).json({ message: 'Não implementado ainda' });
+  async login(req: Request, res: Response): Promise<void> {
+    const { email, password } = req.body;
+
+    // Validação dos campos obrigatórios
+    if (!email || !password) {
+      res.status(400).json({
+        success: false,
+        message: 'Os campos email e password são obrigatórios.',
+      });
+      return;
+    }
+
+    // Buscar usuário pelo email
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      res.status(401).json({
+        success: false,
+        message: 'Email ou senha inválidos.',
+      });
+      return;
+    }
+
+    // Comparar senha com o hash armazenado
+    const passwordMatch = await bcrypt.compare(password, user.passwordHash);
+    if (!passwordMatch) {
+      res.status(401).json({
+        success: false,
+        message: 'Email ou senha inválidos.',
+      });
+      return;
+    }
+
+    // Gerar token JWT com expiração de 7 dias
+    const secret = process.env.JWT_SECRET as string;
+    const token = jwt.sign({ userId: user.id }, secret, { expiresIn: '7d' });
+
+    // Retornar token e dados do usuário sem expor o hash
+    res.status(200).json({
+      success: true,
+      token,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      },
+    });
   }
 }
