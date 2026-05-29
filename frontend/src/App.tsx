@@ -1,17 +1,33 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-
-// TODO: Importar páginas quando forem criadas
-// import { LoginPage } from '@/pages/LoginPage';
-// import { RegisterPage } from '@/pages/RegisterPage';
-// import { CatalogPage } from '@/pages/CatalogPage';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from '@/contexts/AuthContext';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { LoginPage } from '@/pages/LoginPage';
+import { RegisterPage } from '@/pages/RegisterPage';
+import { DashboardPage } from '@/pages/DashboardPage';
 
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        {/* Rotas serão adicionadas durante o desenvolvimento */}
-        <Route path="/" element={<div>MemoryCard - Em construção</div>} />
-      </Routes>
+      <AuthProvider>
+        <Routes>
+          {/* Redireciona raiz para login */}
+          <Route path="/" element={<Navigate to="/login" replace />} />
+
+          {/* Rotas públicas */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+
+          {/* Rota protegida */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   );
 }
