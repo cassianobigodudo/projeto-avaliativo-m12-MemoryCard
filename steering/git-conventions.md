@@ -23,3 +23,5 @@ Todas as mensagens de commit devem seguir o formato: `<tipo>(<escopo>): <descri�
 - **Faça commits atômicos:** Não misture refatoração de código com criação de nova funcionalidade no mesmo commit. Faça um por um.
 - **Idioma:** Escreva as mensagens de commit em português.
 - **Antes de commitar:** Certifique-se de que o código compila e que os testes existentes (se houver) não foram quebrados.
+- **Develop:** Certifique-se que todos os commits devem passar pela Develop antes de ir para a main.
+- **Documentação Viva:** Sempre que uma nova funcionalidade importante for adicionada, verifique o README.md e INSTALLATION.md antes de commitar e adicione as novas informações
