@@ -63,8 +63,8 @@ projeto-avaliativo-m12-MemoryCard/
 | Método | Rota | Descrição | Auth | Status |
 |---|---|---|---|---|
 | POST | `/api/users/register` | Cadastro de usuário | ❌ | ✅ Implementado |
+| POST | `/api/auth/login` | Login | ❌ | ✅ Implementado |
 | POST | `/api/auth/register` | Cadastro de usuário (legado) | ❌ | 🚧 Placeholder |
-| POST | `/api/auth/login` | Login | ❌ | 🚧 Placeholder |
 | GET | `/api/games` | Listar jogos do usuário | ✅ | 🚧 Placeholder |
 | POST | `/api/games` | Adicionar jogo | ✅ | 🚧 Placeholder |
 | GET | `/api/games/:id` | Detalhar jogo | ✅ | 🚧 Placeholder |
@@ -78,12 +78,22 @@ O projeto utiliza **Jest** com **ts-jest** para testes unitários no backend.
 | Módulo | Casos cobertos |
 |---|---|
 | `AuthController.register` | Cadastro com sucesso, campos obrigatórios ausentes (name, email, password), email inválido, senha fraca, email duplicado |
+| `AuthController.login` | Login com sucesso (gera token), email inexistente, senha incorreta, campos ausentes |
+| `authMiddleware` | Token válido (libera rota e injeta userId), header ausente, sem prefixo Bearer, token inválido/expirado |
 
 Para rodar os testes:
 
 ```bash
 cd backend
 npm test
+```
+
+### Como usar o token nas rotas protegidas
+
+Após o login, inclua o token retornado no header de todas as requisições às rotas protegidas:
+
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 ## Como Rodar
