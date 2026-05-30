@@ -67,8 +67,8 @@ projeto-avaliativo-m12-MemoryCard/
 | PUT | `/api/users/:id` | Editar conta do usuário | ✅ | ✅ Implementado |
 | DELETE | `/api/users/:id` | Deletar conta do usuário | ✅ | ✅ Implementado |
 | POST | `/api/auth/register` | Cadastro de usuário (legado) | ❌ | 🚧 Placeholder |
-| GET | `/api/games` | Listar jogos do usuário | ✅ | 🚧 Placeholder |
-| POST | `/api/games` | Adicionar jogo | ✅ | 🚧 Placeholder |
+| GET | `/api/games` | Listar jogos do usuário | ✅ | ✅ Implementado |
+| POST | `/api/games` | Adicionar jogo à coleção | ✅ | ✅ Implementado |
 | GET | `/api/games/:id` | Detalhar jogo | ✅ | 🚧 Placeholder |
 | PUT | `/api/games/:id` | Editar jogo | ✅ | 🚧 Placeholder |
 | DELETE | `/api/games/:id` | Remover jogo | ✅ | 🚧 Placeholder |
@@ -86,6 +86,8 @@ O projeto utiliza **Jest** com **ts-jest** para testes unitários no backend e *
 | `authMiddleware` | Token válido (libera rota e injeta userId), header ausente, sem prefixo Bearer, token inválido/expirado |
 | `UserController.update` | Edição com sucesso, tentativa de editar conta alheia (403), nenhum campo enviado (400), email duplicado (409) |
 | `UserController.delete` | Deleção com sucesso, tentativa de deletar conta alheia (403), usuário inexistente (404) |
+| `GameController.create` | Adição com sucesso (userId do token), sem userId retorna 401, campos obrigatórios ausentes retorna 400 |
+| `GameController.index` | Lista apenas jogos do usuário autenticado, sem userId retorna 401 |
 
 ```bash
 cd backend
@@ -99,6 +101,7 @@ npm test
 | `LoginPage` | Renderização dos inputs, formulário vazio não chama API, login com sucesso redireciona para /dashboard, credenciais inválidas exibem erro |
 | `RegisterPage` | Renderização dos inputs, formulário vazio não chama API, cadastro com sucesso redireciona para /login, email duplicado exibe erro |
 | `ProtectedRoute` | Sem token redireciona para /login, com token renderiza conteúdo protegido |
+| `AddGameModal` | Modal fechado não renderiza, campos renderizados, formulário vazio não chama API, submissão com dados válidos, cancelar fecha modal, exibe erro, estado de loading |
 
 ```bash
 cd frontend
