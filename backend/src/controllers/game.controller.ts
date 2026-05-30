@@ -75,11 +75,82 @@ export class GameController {
     res.status(501).json({ message: 'Não implementado ainda' });
   }
 
-  async update(_req: Request, res: Response): Promise<void> {
-    res.status(501).json({ message: 'Não implementado ainda' });
+  /**
+   * PUT /api/games/:id
+   * Edita um jogo da coleção. Apenas o dono pode editar.
+   */
+  async update(req: Request, res: Response): Promise<void> {
+    const userId = req.userId;
+    const { id } = req.params;
+
+    if (!userId) {
+      res.status(401).json({ success: false, message: 'Não autorizado.' });
+      return;
+    }
+
+    // Verificar se o jogo existe e pertence ao usuário
+    const game = await prisma.game.findFirst({ where: { id, userId } });
+    if (!game) {
+      res.status(404).json({ success: false, message: 'Jogo não encontrado.' });
+      return;
+    }
+
+    const { title, platform, condition, region, notes } = req.body;
+
+    if (!title && !platform && !condition && !region && notes === undefined) {
+      res.status(400).json({
+        success: false,
+        message: 'Informe ao menos um campo para atualizar.',
+      });
+      return;
+    }
+
+    const dataToUpdate: Record<string, unknown> = {};
+    if (title)     dataToUpdate.title     = title;
+    if (platform)  dataToUpdate.platform  = platform;
+    if (condition) dataToUpdate.condition = condition;
+    if (region)    dataToUpdate.region    = region;
+    if (notes !== undefined) dataToUpdate.notes = notes;
+
+    const updated = await prisma.game.update({ where: { id }, data: dataToUpdate });
+
+    res.status(200).json({
+      success: true,
+      message: 'Jogo atualizado com sucesso.',
+      data: {
+        id: updated.id,
+        title: updated.title,
+        platform: updated.platform,
+        condition: updated.condition,
+        region: updated.region,
+        notes: updated.notes,
+        createdAt: updated.createdAt,
+      },
+    });
   }
 
-  async destroy(_req: Request, res: Response): Promise<void> {
-    res.status(501).json({ message: 'Não implementado ainda' });
+  /**
+   * DELETE /api/games/:id
+   * Remove um jogo da coleção. Apenas o dono pode remover.
+   */
+  async destroy(req: Request, res: Response): Promise<void> {
+    const userId = req.userId;
+    const { id } = req.params;
+
+    if (!userId) {
+      res.status(401).json({ success: false, message: 'Não autorizado.' });
+      return;
+    }
+
+    // Verificar se o jogo existe e pertence ao usuário
+    const game = await prisma.game.findFirst({ where: { id, userId } });
+    if (!game) {
+      res.status(404).json({ success: false, message: 'Jogo não encontrado.' });
+      return;
+    }
+
+    await prisma.game.delete({ where: { id } });
+
+    res.status(200).json({ success: true, message: 'Jogo removido com sucesso.' });
   }
 }
