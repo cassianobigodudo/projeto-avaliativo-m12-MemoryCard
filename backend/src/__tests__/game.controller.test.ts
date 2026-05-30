@@ -8,6 +8,9 @@ jest.mock('../lib/prisma', () => ({
     game: {
       create: jest.fn(),
       findMany: jest.fn(),
+      findFirst: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
     },
   },
 }));
@@ -181,6 +184,108 @@ describe('GameController - index', () => {
     const res = mockResponse();
 
     await controller.index(req as Request, res as Response);
+
+    expect(res.statusCode).toBe(401);
+  });
+});
+
+// ─── Testes: UPDATE ───────────────────────────────────────────────────────────
+
+describe('GameController - update', () => {
+  let controller: GameController;
+
+  beforeEach(() => {
+    controller = new GameController();
+  });
+
+  it('Teste 8: Editar jogo com sucesso — dono pode editar e recebe 200', async () => {
+    (prisma.game.findFirst as jest.Mock).mockResolvedValue(fakeGame);
+    (prisma.game.update as jest.Mock).mockResolvedValue({ ...fakeGame, title: 'Mario Atualizado' });
+
+    const req = { body: { title: 'Mario Atualizado' }, userId: 'user-uuid-123', params: { id: 'game-uuid-123' } } as unknown as Request;
+    const res = mockResponse();
+
+    await controller.update(req, res as Response);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.jsonBody).toMatchObject({ success: true, message: 'Jogo atualizado com sucesso.' });
+  });
+
+  it('Teste 9: Tentar editar jogo de outro usuário — deve retornar 404 (jogo não encontrado para esse userId)', async () => {
+    // findFirst retorna null porque o userId não bate
+    (prisma.game.findFirst as jest.Mock).mockResolvedValue(null);
+
+    const req = { body: { title: 'Hack' }, userId: 'outro-user', params: { id: 'game-uuid-123' } } as unknown as Request;
+    const res = mockResponse();
+
+    await controller.update(req, res as Response);
+
+    expect(res.statusCode).toBe(404);
+    expect(res.jsonBody).toMatchObject({ success: false, message: 'Jogo não encontrado.' });
+    expect(prisma.game.update).not.toHaveBeenCalled();
+  });
+
+  it('Teste 10: Sem userId no token ao editar — deve retornar 401', async () => {
+    const req = { body: { title: 'X' }, userId: undefined, params: { id: 'game-uuid-123' } } as unknown as Request;
+    const res = mockResponse();
+
+    await controller.update(req, res as Response);
+
+    expect(res.statusCode).toBe(401);
+  });
+
+  it('Teste 11: Nenhum campo enviado para editar — deve retornar 400', async () => {
+    (prisma.game.findFirst as jest.Mock).mockResolvedValue(fakeGame);
+
+    const req = { body: {}, userId: 'user-uuid-123', params: { id: 'game-uuid-123' } } as unknown as Request;
+    const res = mockResponse();
+
+    await controller.update(req, res as Response);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.jsonBody).toMatchObject({ success: false, message: 'Informe ao menos um campo para atualizar.' });
+  });
+});
+
+// ─── Testes: DESTROY ──────────────────────────────────────────────────────────
+
+describe('GameController - destroy', () => {
+  let controller: GameController;
+
+  beforeEach(() => {
+    controller = new GameController();
+  });
+
+  it('Teste 12: Deletar jogo com sucesso — dono pode deletar e recebe 200', async () => {
+    (prisma.game.findFirst as jest.Mock).mockResolvedValue(fakeGame);
+    (prisma.game.delete as jest.Mock).mockResolvedValue(fakeGame);
+
+    const req = { body: {}, userId: 'user-uuid-123', params: { id: 'game-uuid-123' } } as unknown as Request;
+    const res = mockResponse();
+
+    await controller.destroy(req, res as Response);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.jsonBody).toMatchObject({ success: true, message: 'Jogo removido com sucesso.' });
+  });
+
+  it('Teste 13: Tentar deletar jogo de outro usuário — deve retornar 404', async () => {
+    (prisma.game.findFirst as jest.Mock).mockResolvedValue(null);
+
+    const req = { body: {}, userId: 'outro-user', params: { id: 'game-uuid-123' } } as unknown as Request;
+    const res = mockResponse();
+
+    await controller.destroy(req, res as Response);
+
+    expect(res.statusCode).toBe(404);
+    expect(prisma.game.delete).not.toHaveBeenCalled();
+  });
+
+  it('Teste 14: Sem userId no token ao deletar — deve retornar 401', async () => {
+    const req = { body: {}, userId: undefined, params: { id: 'game-uuid-123' } } as unknown as Request;
+    const res = mockResponse();
+
+    await controller.destroy(req, res as Response);
 
     expect(res.statusCode).toBe(401);
   });
