@@ -124,6 +124,23 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 Consulte o [INSTALLATION.md](./INSTALLATION.md) para instruções detalhadas de instalação e execução.
 
+## Pipeline de CI (GitHub Actions)
+
+O projeto utiliza **GitHub Actions** para garantir a qualidade do código de forma automatizada. A pipeline é disparada em todo `push` ou `pull_request` para as branches `main` e `develop`.
+
+### O que a pipeline executa
+
+A esteira roda dois jobs em paralelo — um para o backend e outro para o frontend — com as seguintes etapas em cada:
+
+1. **Checkout** do código
+2. **Configuração do Node.js 20**
+3. **Instalação de dependências** (`npm ci`)
+4. **Lint** (`npm run lint`) — verifica padrões de código com ESLint + TypeScript ESLint
+5. **Geração do client Prisma** (`npx prisma generate`) — apenas no backend
+6. **Testes** (`npm test`) — executa todos os testes unitários
+
+> Os testes do backend rodam de forma isolada (sem banco de dados real), pois utilizam mocks do Prisma via Jest.
+
 ## Uso de IA — Kiro (LLM)
 
 Este projeto foi desenvolvido com auxílio do **Kiro**, um ambiente de desenvolvimento com IA integrada. Para garantir consistência, rastreabilidade e confiabilidade nas interações com a LLM, adotamos um padrão de prompt estruturado em todas as tarefas delegadas à IA.
