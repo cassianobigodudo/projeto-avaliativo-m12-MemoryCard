@@ -68,7 +68,6 @@ projeto-avaliativo-m12-MemoryCard/
 | DELETE | `/api/users/:id` | Deletar conta do usuário | ✅ | ✅ Implementado |
 | PUT | `/api/users/profile` | Atualizar perfil do usuário logado (nome, email, senha) | ✅ | ✅ Implementado |
 | DELETE | `/api/users/profile` | Excluir conta do usuário logado (cascade nos jogos) | ✅ | ✅ Implementado |
-| POST | `/api/auth/register` | Cadastro de usuário (legado) | ❌ | 🚧 Placeholder |
 | GET | `/api/games` | Listar jogos do usuário | ✅ | ✅ Implementado |
 | POST | `/api/games` | Adicionar jogo à coleção | ✅ | ✅ Implementado |
 | PUT | `/api/games/:id` | Editar jogo da coleção | ✅ | ✅ Implementado |
