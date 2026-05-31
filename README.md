@@ -202,6 +202,43 @@ A pasta `steering/` contém os arquivos que alimentam o contexto da IA em todas 
 | `spec.md` | Regras funcionais e de negócio da aplicação |
 | `git-conventions.md` | Padrão de commits e criação de branches |
 
+## Melhorias Futuras
+
+A seguir, ideias de evolução para o projeto após o MVP:
+
+### 🔍 Busca e Filtros
+- Filtrar a coleção por plataforma, condição ou região diretamente no dashboard
+- Campo de busca por título de jogo em tempo real
+- Ordenação por data de adição, título ou plataforma
+
+### 📊 Estatísticas da Coleção
+- Painel com total de jogos por plataforma
+- Gráfico de distribuição por condição (Lacrado, Completo, Apenas Mídia, Digital)
+- Valor estimado da coleção com campo de preço pago por jogo
+
+### 🖼️ Imagens e Capas
+- Upload de imagem de capa para cada jogo
+- Integração com API pública (ex: IGDB ou RAWG) para buscar capa automaticamente pelo título
+
+### 👥 Funcionalidades Sociais
+- Perfil público opcional para compartilhar a coleção
+- Sistema de "quero comprar" e "quero vender" entre usuários
+- Exportação da coleção em CSV ou PDF
+
+### 🔔 Notificações
+- Alertas por email ao atingir marcos (ex: 100 jogos na coleção)
+- Lembrete de jogos marcados como "quero comprar"
+
+### 🛡️ Segurança e Infraestrutura
+- Refresh token para renovação automática de sessão
+- Rate limiting nas rotas de autenticação para prevenir brute force
+- Deploy automatizado via GitHub Actions (CD) em plataforma como Railway ou Render
+- Testes de integração com banco de dados real em ambiente de staging
+
+### 📱 Mobile
+- Versão mobile com React Native reutilizando a API existente
+- PWA (Progressive Web App) para instalação direta no celular
+
 ## Licença
 
 Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](./LICENSE) para mais detalhes.
