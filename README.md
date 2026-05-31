@@ -238,6 +238,10 @@ A seguir, ideias de evolução para o projeto após o MVP:
 - Versão mobile com React Native reutilizando a API existente
 - PWA (Progressive Web App) para instalação direta no celular
 
+## Vídeo de Apresentação
+
+Confira a apresentação completa do projeto: [MemoryCard - Demonstração](https://www.youtube.com/watch?v=aykOkO3iwgg)
+
 ## Licença
 
 Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](./LICENSE) para mais detalhes.
