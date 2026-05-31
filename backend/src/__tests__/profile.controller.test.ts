@@ -64,7 +64,7 @@ describe('ProfileController - update', () => {
       data: { name: 'Cassiano Atualizado' },
     });
     // Senha NÃO deve aparecer na resposta
-    const data = (res.jsonBody as any).data;
+    const data = (res.jsonBody as { data: Record<string, unknown> }).data;
     expect(data).not.toHaveProperty('passwordHash');
   });
 

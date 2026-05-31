@@ -26,11 +26,11 @@ export class GameModel {
     return prisma.game.create({ data });
   }
 
-  async update(id: string, userId: string, data: UpdateGameData): Promise<Game> {
+  async update(id: string, _userId: string, data: UpdateGameData): Promise<Game> {
     return prisma.game.update({ where: { id }, data });
   }
 
-  async delete(id: string, userId: string): Promise<void> {
+  async delete(id: string, _userId: string): Promise<void> {
     await prisma.game.delete({ where: { id } });
   }
 }

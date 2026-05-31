@@ -322,6 +322,64 @@ O comportamento esperado ao clicar em "Excluir Conta" no frontend deve ser:
 
 ---
 
+---
+
+## Prompt 11 — Linting e Pipeline de CI (GitHub Actions)
+
+**Branch:** `chore/setup-ci`
+
+```
+leia silenciosamente os steerings antes de iniciar o prompt
+
+Objetivo:
+Configurar o ambiente de qualidade de código (Linting) e criar uma esteira automatizada (Pipeline CI) usando GitHub Actions para o projeto MemoryCard.
+
+Instrução:
+Trabalhe de forma sequencial:
+1. Linting Backend: Instale e configure o ESLint na pasta do backend. Crie um script `"lint": "eslint ."` no package.json.
+2. Linting Frontend: O Vite/React geralmente já vem com ESLint. Apenas certifique-se de que o script `"lint"` está configurado no package.json do frontend e rodando sem erros.
+3. GitHub Actions: Crie a pasta `.github/workflows` na raiz do projeto e crie um arquivo chamado `ci.yml`.
+4. Configuração do Workflow: Configure o arquivo YAML para rodar sempre que houver um 'push' ou 'pull_request' para as branches `main` e `develop`.
+5. Documentação e Commits: Adicione essas mudanças em uma branch `chore/setup-ci`, faça o commit e adicione um parágrafo no README explicando a pipeline.
+
+Regras:
+1. O workflow (Pipeline) no GitHub Actions deve ter as seguintes etapas (steps):
+- Fazer o checkout do código.
+- Configurar o Node.js.
+- Instalar as dependências (`npm ci` ou `npm install`) do front e do back.
+- Rodar o Lint (`npm run lint`) no front e no back.
+- Gerar os clients do Prisma (`npx prisma generate`).
+- Rodar os testes (`npm run test`) no front e no back.
+2. Não se preocupe com banco de dados real na pipeline agora; foque em rodar os testes de forma isolada ou configurar as variáveis de ambiente necessárias para os testes passarem no GitHub.
+
+Exemplo:
+O início do seu arquivo .github/workflows/ci.yml deve se parecer com isso:
+name: CI Pipeline
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main", "develop" ]
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    # ... continuação dos passos
+```
+
+**Técnicas utilizadas:** Chain-of-Thought sequencial com 5 passos + One-Shot Example para a estrutura do YAML + regras explícitas para os steps da pipeline
+
+**Resultado:** ⚠️ Parcialmente bem-sucedido na primeira execução — A pipeline foi criada e o job do backend passou, mas o job do frontend falhou no CI com `exit code 1`. Foram identificados três problemas:
+
+1. **ESLint frontend incompatível:** O config foi criado no formato flat (`eslint.config.js`), que requer ESLint v9+, mas o projeto usa ESLint v8. Solução: substituído por `.eslintrc.json` no formato legado, compatível com a versão instalada.
+2. **Warning de `any` virou erro no CI:** O `as any` na linha 67 do `profile.controller.test.ts` era um warning local mas bloqueou o lint no CI. Solução: substituído por tipagem explícita `{ data: Record<string, unknown> }`.
+3. **Node.js 20 deprecado:** O GitHub Actions emitiu aviso de que Node.js 20 será removido em setembro de 2026. Solução: atualizado para Node.js 24 no `ci.yml`.
+
+Após análise e correção dos três problemas em um commit adicional, a pipeline passou com sucesso nos dois jobs.
+
+---
+
 ## Resumo Geral
 
 | # | Funcionalidade | Branch | Resultado |
@@ -336,5 +394,6 @@ O comportamento esperado ao clicar em "Excluir Conta" no frontend deve ser:
 | 8 | CRUD de jogos (adicionar) | `feat/crud-jogos` | ❌ Timeout 3x → ✅ Sucesso na 3ª tentativa |
 | 9 | CRUD de jogos (editar/excluir) | `feat/crud-jogos` | ✅ Sucesso |
 | 10 | Tela de perfil (fullstack final) | `feat/perfil-usuario` | ✅ Sucesso |
+| 11 | Linting + Pipeline CI | `chore/setup-ci` | ⚠️ Erro no CI (frontend ESLint v8 vs v9, any, Node 20) → ✅ Corrigido na 2ª análise |
 
 **Total de testes ao final do projeto:** 75 (45 backend + 30 frontend) — todos passando ✅
