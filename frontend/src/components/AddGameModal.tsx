@@ -1,4 +1,4 @@
-import { useState, FormEvent } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 
 export type AddGameFormData = {
   title: string;
@@ -14,6 +14,7 @@ type AddGameModalProps = {
   onSubmit: (data: AddGameFormData) => Promise<void>;
   isLoading?: boolean;
   error?: string | null;
+  initialData?: AddGameFormData;
 };
 
 const CONDITIONS = [
@@ -30,12 +31,29 @@ const REGIONS = [
   { value: 'NTSC_J', label: 'NTSC-J' },
 ];
 
-export function AddGameModal({ isOpen, onClose, onSubmit, isLoading, error }: AddGameModalProps) {
-  const [title, setTitle] = useState('');
-  const [platform, setPlatform] = useState('');
-  const [condition, setCondition] = useState('Sealed');
-  const [region, setRegion] = useState('RegionFree');
-  const [notes, setNotes] = useState('');
+export function AddGameModal({ isOpen, onClose, onSubmit, isLoading, error, initialData }: AddGameModalProps) {
+  const [title, setTitle] = useState(initialData?.title ?? '');
+  const [platform, setPlatform] = useState(initialData?.platform ?? '');
+  const [condition, setCondition] = useState(initialData?.condition ?? 'Sealed');
+  const [region, setRegion] = useState(initialData?.region ?? 'RegionFree');
+  const [notes, setNotes] = useState(initialData?.notes ?? '');
+
+  // Preenche os campos quando o modal abre com dados iniciais (modo edição)
+  useEffect(() => {
+    if (isOpen && initialData) {
+      setTitle(initialData.title);
+      setPlatform(initialData.platform);
+      setCondition(initialData.condition);
+      setRegion(initialData.region);
+      setNotes(initialData.notes);
+    } else if (isOpen && !initialData) {
+      setTitle('');
+      setPlatform('');
+      setCondition('Sealed');
+      setRegion('RegionFree');
+      setNotes('');
+    }
+  }, [isOpen, initialData]);
 
   if (!isOpen) return null;
 
@@ -62,7 +80,9 @@ export function AddGameModal({ isOpen, onClose, onSubmit, isLoading, error }: Ad
     >
       <div className="w-full max-w-md bg-gray-900 rounded-2xl p-8 shadow-2xl border border-gray-800">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-white">Adicionar Jogo</h2>
+          <h2 className="text-xl font-bold text-white">
+            {initialData ? 'Editar Jogo' : 'Adicionar Jogo'}
+          </h2>
           <button
             onClick={handleClose}
             aria-label="Fechar modal"
@@ -172,7 +192,7 @@ export function AddGameModal({ isOpen, onClose, onSubmit, isLoading, error }: Ad
               disabled={isLoading}
               className="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-semibold rounded-lg py-3 transition-colors"
             >
-              {isLoading ? 'Salvando...' : 'Adicionar'}
+              {isLoading ? 'Salvando...' : initialData ? 'Salvar' : 'Adicionar'}
             </button>
           </div>
         </form>

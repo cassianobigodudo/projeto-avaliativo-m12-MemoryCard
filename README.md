@@ -69,9 +69,8 @@ projeto-avaliativo-m12-MemoryCard/
 | POST | `/api/auth/register` | Cadastro de usuário (legado) | ❌ | 🚧 Placeholder |
 | GET | `/api/games` | Listar jogos do usuário | ✅ | ✅ Implementado |
 | POST | `/api/games` | Adicionar jogo à coleção | ✅ | ✅ Implementado |
-| GET | `/api/games/:id` | Detalhar jogo | ✅ | 🚧 Placeholder |
-| PUT | `/api/games/:id` | Editar jogo | ✅ | 🚧 Placeholder |
-| DELETE | `/api/games/:id` | Remover jogo | ✅ | 🚧 Placeholder |
+| PUT | `/api/games/:id` | Editar jogo da coleção | ✅ | ✅ Implementado |
+| DELETE | `/api/games/:id` | Remover jogo da coleção | ✅ | ✅ Implementado |
 
 ## Testes
 
@@ -88,6 +87,8 @@ O projeto utiliza **Jest** com **ts-jest** para testes unitários no backend e *
 | `UserController.delete` | Deleção com sucesso, tentativa de deletar conta alheia (403), usuário inexistente (404) |
 | `GameController.create` | Adição com sucesso (userId do token), sem userId retorna 401, campos obrigatórios ausentes retorna 400 |
 | `GameController.index` | Lista apenas jogos do usuário autenticado, sem userId retorna 401 |
+| `GameController.update` | Edição com sucesso, jogo de outro usuário retorna 404, sem userId retorna 401, sem campos retorna 400 |
+| `GameController.destroy` | Exclusão com sucesso, jogo de outro usuário retorna 404, sem userId retorna 401 |
 
 ```bash
 cd backend
@@ -102,6 +103,7 @@ npm test
 | `RegisterPage` | Renderização dos inputs, formulário vazio não chama API, cadastro com sucesso redireciona para /login, email duplicado exibe erro |
 | `ProtectedRoute` | Sem token redireciona para /login, com token renderiza conteúdo protegido |
 | `AddGameModal` | Modal fechado não renderiza, campos renderizados, formulário vazio não chama API, submissão com dados válidos, cancelar fecha modal, exibe erro, estado de loading |
+| `DashboardPage` | Botões Editar e Excluir renderizados, Editar abre modal com dados preenchidos, Excluir com confirmação chama deleteGame, Excluir cancelado não chama deleteGame, submissão de edição chama updateGame |
 
 ```bash
 cd frontend
