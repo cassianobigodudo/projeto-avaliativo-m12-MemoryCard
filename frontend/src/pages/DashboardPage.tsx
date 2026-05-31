@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useGames } from '@/hooks/useGames';
 import { AddGameModal } from '@/components/AddGameModal';
@@ -63,6 +64,12 @@ export function DashboardPage() {
           <span className="text-gray-400 text-sm">
             Olá, <span className="text-white font-medium">{user?.name}</span>
           </span>
+          <Link
+            to="/profile"
+            className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors"
+          >
+            Perfil
+          </Link>
           <button
             onClick={logout}
             className="text-sm text-red-400 hover:text-red-300 transition-colors"
