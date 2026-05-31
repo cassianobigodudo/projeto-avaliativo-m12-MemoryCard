@@ -4,47 +4,229 @@ Este documento registra os 3 ciclos completos de desenvolvimento, identificaçã
 
 ---
 
-## 📅 Ciclo 1: Autenticação e Configuração de Ambiente (Fullstack)
+## 📅 Ciclo 1: Autenticação com Validações e Testes (Backend)
 
-**Escopo Inicial:** Criação das tabelas de usuário via Prisma, controllers de login/cadastro no backend e as telas correspondentes em React no frontend.
+**Escopo Inicial:** Criação do controller de autenticação (cadastro e login) com validações de email, senha e testes unitários.
 
 ### ❌ Problema Encontrado
-Ao tentar rodar as migrações e testar a conexão, o Prisma retornava o erro de autenticação `P1000: Authentication failed`, mesmo com a senha teoricamente correta.
-
-```
-Error: P1000: Authentication failed against database server at `localhost:5432`, the provided database credentials for `postgres` are not valid. Please make sure to double-check the connection string.
-```
+A IA gerou um controller de autenticação funcional, mas **sem validações robustas de entrada**. O código aceitava emails inválidos, senhas fracas e não tinha testes unitários. Além disso, a resposta da API **expunha o hash da senha** em alguns cenários.
 
 ### 🔍 Diagnóstico
-1. Investigação inicial apontou para conflitos de IPv6 no Windows
-2. Validação de caracteres especiais na string de conexão
-3. **Diagnóstico Final:** O *Auto Save* do VSCode estava desativado, fazendo com que o Prisma lesse uma versão antiga e não salva do arquivo `.env`
+1. Falta de validação de formato de email (regex)
+2. Falta de validação de força de senha (mínimo 8 caracteres, letra + número)
+3. Resposta da API retornando `passwordHash` em alguns casos
+4. Sem testes unitários para validar comportamento
+5. Sem tratamento de email duplicado (erro 409)
 
 ### ✅ Refinamento Aplicado
 
-**Antes (`.env` desatualizado):**
-```env
-# Arquivo não salvo automaticamente
-DATABASE_URL="postgresql://postgres:senha_errada@localhost:5432/memorycard_db"
-JWT_SECRET="chave_temporaria"
+**Antes (Sem validações):**
+```typescript
+// ❌ INSEGURO: Aceita qualquer entrada
+export class AuthController {
+  async register(req: Request, res: Response): Promise<void> {
+    const { name, email, password } = req.body;
+
+    // Sem validação de campos
+    const user = await prisma.user.create({
+      data: {
+        name,
+        email,
+        passwordHash: await bcrypt.hash(password, 10),
+      },
+    });
+
+    // ❌ PROBLEMA: Retorna passwordHash
+    res.status(201).json({
+      success: true,
+      data: user, // Expõe passwordHash!
+    });
+  }
+
+  async login(req: Request, res: Response): Promise<void> {
+    const { email, password } = req.body;
+
+    // Sem validação, sem tratamento de erro
+    const user = await prisma.user.findUnique({ where: { email } });
+    const match = await bcrypt.compare(password, user.passwordHash);
+
+    if (!match) {
+      res.status(401).json({ message: 'Invalid credentials' });
+      return;
+    }
+
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!);
+    res.status(200).json({ token, user }); // ❌ Expõe passwordHash
+  }
+}
 ```
 
-**Depois (`.env` sincronizado com IPv4):**
-```env
-# Auto Save ativado no VSCode
-DATABASE_URL="postgresql://postgres:senha_correta@127.0.0.1:5432/memorycard_db"
-JWT_SECRET="uma_chave_secreta_muito_forte_aqui"
-PORT=3333
-NODE_ENV=development
+**Depois (Com validações robustas):**
+```typescript
+// ✅ SEGURO: Validações completas
+export class AuthController {
+  async register(req: Request, res: Response): Promise<void> {
+    const { name, email, password } = req.body;
+
+    // ✅ Validação 1: Campos obrigatórios
+    if (!name || !email || !password) {
+      res.status(400).json({
+        success: false,
+        message: 'Os campos name, email e password são obrigatórios.',
+      });
+      return;
+    }
+
+    // ✅ Validação 2: Formato de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      res.status(400).json({
+        success: false,
+        message: 'O email informado não é válido.',
+      });
+      return;
+    }
+
+    // ✅ Validação 3: Força de senha (mínimo 8 caracteres, letra + número)
+    const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d).{8,}$/;
+    if (!passwordRegex.test(password)) {
+      res.status(400).json({
+        success: false,
+        message: 'A senha deve ter no mínimo 8 caracteres, contendo pelo menos uma letra e um número.',
+      });
+      return;
+    }
+
+    // ✅ Validação 4: Email duplicado
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) {
+      res.status(409).json({
+        success: false,
+        message: 'Este email já está cadastrado.',
+      });
+      return;
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+    const user = await prisma.user.create({
+      data: { name, email, passwordHash },
+    });
+
+    // ✅ Retorna SEM expor passwordHash
+    res.status(201).json({
+      success: true,
+      data: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      },
+    });
+  }
+
+  async login(req: Request, res: Response): Promise<void> {
+    const { email, password } = req.body;
+
+    // ✅ Validação: Campos obrigatórios
+    if (!email || !password) {
+      res.status(400).json({
+        success: false,
+        message: 'Os campos email e password são obrigatórios.',
+      });
+      return;
+    }
+
+    // ✅ Buscar usuário
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      res.status(401).json({
+        success: false,
+        message: 'Email ou senha inválidos.',
+      });
+      return;
+    }
+
+    // ✅ Comparar senha
+    const passwordMatch = await bcrypt.compare(password, user.passwordHash);
+    if (!passwordMatch) {
+      res.status(401).json({
+        success: false,
+        message: 'Email ou senha inválidos.',
+      });
+      return;
+    }
+
+    // ✅ Gerar token
+    const secret = process.env.JWT_SECRET as string;
+    const token = jwt.sign({ userId: user.id }, secret, { expiresIn: '7d' });
+
+    // ✅ Retorna SEM expor passwordHash
+    res.status(200).json({
+      success: true,
+      token,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      },
+    });
+  }
+}
+```
+
+**Testes Unitários Adicionados:**
+```typescript
+describe('AuthController - register', () => {
+  it('Deve cadastrar com sucesso e retornar 201 sem expor senha', async () => {
+    const req = mockRequest({ name: 'Fulano', email: 'fulano@email.com', password: 'Senha123' });
+    const res = mockResponse();
+    
+    await controller.register(req as Request, res as Response);
+    
+    expect(res.statusCode).toBe(201);
+    expect(res.jsonBody.data).not.toHaveProperty('passwordHash');
+  });
+
+  it('Deve rejeitar email inválido com 400', async () => {
+    const req = mockRequest({ name: 'Fulano', email: 'email-invalido', password: 'Senha123' });
+    const res = mockResponse();
+    
+    await controller.register(req as Request, res as Response);
+    
+    expect(res.statusCode).toBe(400);
+    expect(res.jsonBody.message).toContain('email');
+  });
+
+  it('Deve rejeitar senha fraca com 400', async () => {
+    const req = mockRequest({ name: 'Fulano', email: 'fulano@email.com', password: 'abc' });
+    const res = mockResponse();
+    
+    await controller.register(req as Request, res as Response);
+    
+    expect(res.statusCode).toBe(400);
+    expect(res.jsonBody.message).toContain('senha');
+  });
+
+  it('Deve rejeitar email duplicado com 409', async () => {
+    (prisma.user.findUnique as jest.Mock).mockResolvedValue({ id: 'existing' });
+    const req = mockRequest({ name: 'Fulano', email: 'fulano@email.com', password: 'Senha123' });
+    const res = mockResponse();
+    
+    await controller.register(req as Request, res as Response);
+    
+    expect(res.statusCode).toBe(409);
+  });
+});
 ```
 
 **Ações Tomadas:**
-1. Ativar Auto Save no VSCode (`File → Auto Save`)
-2. Alterar `localhost` para `127.0.0.1` para evitar conflitos de IPv6
-3. Validar credenciais do PostgreSQL
-4. Executar `npx prisma migrate dev --name init` com sucesso
+1. Adicionar validações de email com regex
+2. Adicionar validações de força de senha
+3. Adicionar verificação de email duplicado (erro 409)
+4. Remover `passwordHash` de todas as respostas da API
+5. Escrever 7 testes unitários cobrindo todos os cenários
+6. Executar `npm test` com sucesso
 
-**Resultado:** ✅ Migrações executadas com sucesso, banco de dados criado e Prisma Client gerado
+**Resultado:** ✅ Controller seguro com validações robustas, 7 testes passando, sem exposição de senhas
 
 ---
 
