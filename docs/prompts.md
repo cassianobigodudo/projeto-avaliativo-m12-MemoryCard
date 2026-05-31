@@ -370,7 +370,13 @@ jobs:
 
 **Técnicas utilizadas:** Chain-of-Thought sequencial com 5 passos + One-Shot Example para a estrutura do YAML + regras explícitas para os steps da pipeline
 
-**Resultado:** ✅ Sucesso — ESLint configurado no backend (`eslint.config.mjs`, flat config compatível com ESLint v10) e no frontend (`eslint.config.js`). Pipeline CI criada em `.github/workflows/ci.yml` com dois jobs paralelos (backend e frontend), cada um executando lint, prisma generate e testes. README atualizado com seção explicando a pipeline. Lint local: 0 erros em ambos. 4 commits atômicos realizados e PR #39 aberto.
+**Resultado:** ⚠️ Parcialmente bem-sucedido na primeira execução — A pipeline foi criada e o job do backend passou, mas o job do frontend falhou no CI com `exit code 1`. Foram identificados três problemas:
+
+1. **ESLint frontend incompatível:** O config foi criado no formato flat (`eslint.config.js`), que requer ESLint v9+, mas o projeto usa ESLint v8. Solução: substituído por `.eslintrc.json` no formato legado, compatível com a versão instalada.
+2. **Warning de `any` virou erro no CI:** O `as any` na linha 67 do `profile.controller.test.ts` era um warning local mas bloqueou o lint no CI. Solução: substituído por tipagem explícita `{ data: Record<string, unknown> }`.
+3. **Node.js 20 deprecado:** O GitHub Actions emitiu aviso de que Node.js 20 será removido em setembro de 2026. Solução: atualizado para Node.js 24 no `ci.yml`.
+
+Após análise e correção dos três problemas em um commit adicional, a pipeline passou com sucesso nos dois jobs.
 
 ---
 
@@ -388,6 +394,6 @@ jobs:
 | 8 | CRUD de jogos (adicionar) | `feat/crud-jogos` | ❌ Timeout 3x → ✅ Sucesso na 3ª tentativa |
 | 9 | CRUD de jogos (editar/excluir) | `feat/crud-jogos` | ✅ Sucesso |
 | 10 | Tela de perfil (fullstack final) | `feat/perfil-usuario` | ✅ Sucesso |
-| 11 | Linting + Pipeline CI | `chore/setup-ci` | ✅ Sucesso |
+| 11 | Linting + Pipeline CI | `chore/setup-ci` | ⚠️ Erro no CI (frontend ESLint v8 vs v9, any, Node 20) → ✅ Corrigido na 2ª análise |
 
 **Total de testes ao final do projeto:** 75 (45 backend + 30 frontend) — todos passando ✅
