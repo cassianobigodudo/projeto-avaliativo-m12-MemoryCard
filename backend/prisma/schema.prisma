@@ -1,0 +1,52 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  games Game[]
+
+  @@map("users")
+}
+
+model Game {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  title     String
+  platform  String
+  condition Condition
+  region    Region    @default(RegionFree)
+  notes     String?
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("games")
+}
+
+enum Condition {
+  Sealed
+  CompleteInBox
+  Loose
+  Digital
+}
+
+enum Region {
+  NTSC
+  PAL
+  NTSC_J     @map("NTSC-J")
+  RegionFree
+}
