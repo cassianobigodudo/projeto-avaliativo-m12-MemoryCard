@@ -9,18 +9,18 @@ const gameController = new GameController();
 router.use(authMiddleware);
 
 // GET /api/games
-router.get('/', gameController.index);
+router.get('/', gameController.index.bind(gameController));
 
 // POST /api/games
-router.post('/', gameController.create);
+router.post('/', gameController.create.bind(gameController));
 
 // GET /api/games/:id
-router.get('/:id', gameController.show);
+router.get('/:id', gameController.show.bind(gameController));
 
 // PUT /api/games/:id
-router.put('/:id', gameController.update);
+router.put('/:id', gameController.update.bind(gameController));
 
 // DELETE /api/games/:id
-router.delete('/:id', gameController.destroy);
+router.delete('/:id', gameController.destroy.bind(gameController));
 
 export default router;

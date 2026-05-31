@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import authRoutes from './routes/auth.routes';
 import gameRoutes from './routes/game.routes';
+import userRoutes from './routes/user.routes';
 
 const app = express();
 
@@ -10,6 +11,7 @@ app.use(express.json());
 
 // Rotas
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/games', gameRoutes);
 
 // Health check

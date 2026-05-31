@@ -123,6 +123,7 @@ Com ambos os servidores rodando:
 | `npm run prisma:migrate` | Executa as migrations do banco de dados |
 | `npm run prisma:generate` | Gera o Prisma Client |
 | `npm run prisma:studio` | Abre o Prisma Studio (interface visual do banco) |
+| `npm test` | Executa os testes unitários com Jest |
 
 ### Frontend (`/frontend`)
 
